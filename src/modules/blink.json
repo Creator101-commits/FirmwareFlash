@@ -1,0 +1,9 @@
+{
+  "id": "blink",
+  "name": "Blink LED",
+  "description": "Blink the built-in LED on pin 13 at 1 Hz.",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": [],
+  "setupCode": "  pinMode(13, OUTPUT);",
+  "loopCode": "  digitalWrite(13, HIGH);\n  delay(500);\n  digitalWrite(13, LOW);\n  delay(500);"
+}

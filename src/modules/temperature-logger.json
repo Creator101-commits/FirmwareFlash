@@ -1,0 +1,9 @@
+{
+  "id": "temperature-logger",
+  "name": "Temperature Logger",
+  "description": "Read temperature and humidity from a DHT22 sensor and print to serial.",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": ["DHT", "Adafruit_Sensor"],
+  "setupCode": "  Serial.begin(115200);\n  dht.begin();",
+  "loopCode": "  float h = dht.readHumidity();\n  float t = dht.readTemperature();\n  if (!isnan(h) && !isnan(t)) {\n    Serial.print(\"Temp: \");\n    Serial.print(t);\n    Serial.print(\" C  Humidity: \");\n    Serial.print(h);\n    Serial.println(\"%\");\n  }\n  delay(2000);"
+}

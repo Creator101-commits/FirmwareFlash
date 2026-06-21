@@ -1,0 +1,9 @@
+{
+  "id": "oled-display",
+  "name": "OLED Display",
+  "description": "Print \"Hello World\" on an SSD1306 128x64 OLED over I2C.",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": ["Adafruit_GFX", "Adafruit_SSD1306"],
+  "setupCode": "  Wire.begin();\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(SSD1306_WHITE);\n  display.setCursor(0, 0);\n  display.println(\"Hello World\");\n  display.display();",
+  "loopCode": "  // OLED content is static; nothing to update in loop."
+}

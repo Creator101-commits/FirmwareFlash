@@ -1,0 +1,9 @@
+{
+  "id": "wifi-scanner",
+  "name": "WiFi Scanner",
+  "description": "Scan for nearby WiFi networks and print them to serial. ESP32 only.",
+  "compatibleBoards": ["ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": ["WiFi"],
+  "setupCode": "  Serial.begin(115200);\n  WiFi.mode(WIFI_STA);\n  WiFi.disconnect();",
+  "loopCode": "  int n = WiFi.scanNetworks();\n  for (int i = 0; i < n; i++) {\n    Serial.print(WiFi.SSID(i));\n    Serial.print(\" (\");\n    Serial.print(WiFi.RSSI(i));\n    Serial.println(\" dBm)\");\n  }\n  delay(5000);"
+}
