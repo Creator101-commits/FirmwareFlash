@@ -1,0 +1,21 @@
+{
+  "id": "servo-control",
+  "name": "Servo Control",
+  "description": "Sweep a servo motor back and forth through its full range.",
+  "category": "Actuators",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": ["Servo"],
+  "params": [
+    { "key": "pin",   "label": "Servo Pin",         "type": "number", "default": "9" },
+    { "key": "speed", "label": "Step delay (ms)",   "type": "number", "default": "15" }
+  ],
+  "flashBytes": 1500,
+  "ramBytes": 60,
+  "wiringDiagram": [
+    { "component": "Servo Motor", "boardPin": "D9",  "componentPin": "Signal (orange/white)" },
+    { "component": "Servo Motor", "boardPin": "5V",  "componentPin": "VCC (red)" },
+    { "component": "Servo Motor", "boardPin": "GND", "componentPin": "GND (brown/black)" }
+  ],
+  "setupCode": "  servo.attach({{pin}});",
+  "loopCode": "  for (int pos = 0; pos <= 180; pos++) {\n    servo.write(pos);\n    delay({{speed}});\n  }\n  for (int pos = 180; pos >= 0; pos--) {\n    servo.write(pos);\n    delay({{speed}});\n  }"
+}

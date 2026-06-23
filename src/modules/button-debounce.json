@@ -1,0 +1,20 @@
+{
+  "id": "button-debounce",
+  "name": "Button (Debounced)",
+  "description": "Read a pushbutton with software debouncing and print state changes to serial.",
+  "category": "Sensors",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": [],
+  "params": [
+    { "key": "pin",        "label": "Button Pin",         "type": "number", "default": "2" },
+    { "key": "debounceMs", "label": "Debounce delay (ms)", "type": "number", "default": "50" }
+  ],
+  "flashBytes": 900,
+  "ramBytes": 30,
+  "wiringDiagram": [
+    { "component": "Pushbutton", "boardPin": "D2",  "componentPin": "Leg A" },
+    { "component": "Pushbutton", "boardPin": "GND", "componentPin": "Leg B" }
+  ],
+  "setupCode": "  Serial.begin(115200);\n  pinMode({{pin}}, INPUT_PULLUP);",
+  "loopCode": "  static int lastState = HIGH;\n  static unsigned long lastDebounce = 0;\n  int reading = digitalRead({{pin}});\n  if (reading != lastState) { lastDebounce = millis(); }\n  if ((millis() - lastDebounce) > {{debounceMs}}) {\n    if (reading == LOW) { Serial.println(\"Button pressed\"); }\n  }\n  lastState = reading;"
+}

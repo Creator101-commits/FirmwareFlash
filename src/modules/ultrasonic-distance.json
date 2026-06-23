@@ -1,0 +1,22 @@
+{
+  "id": "ultrasonic-distance",
+  "name": "Ultrasonic Distance",
+  "description": "Measure distance with an HC-SR04 sensor and print to serial.",
+  "category": "Sensors",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": [],
+  "params": [
+    { "key": "trigPin", "label": "Trig Pin", "type": "number", "default": "9" },
+    { "key": "echoPin", "label": "Echo Pin", "type": "number", "default": "10" }
+  ],
+  "flashBytes": 700,
+  "ramBytes": 20,
+  "wiringDiagram": [
+    { "component": "HC-SR04", "boardPin": "D9",  "componentPin": "TRIG" },
+    { "component": "HC-SR04", "boardPin": "D10", "componentPin": "ECHO" },
+    { "component": "HC-SR04", "boardPin": "5V",  "componentPin": "VCC" },
+    { "component": "HC-SR04", "boardPin": "GND", "componentPin": "GND" }
+  ],
+  "setupCode": "  Serial.begin(115200);\n  pinMode({{trigPin}}, OUTPUT);\n  pinMode({{echoPin}}, INPUT);",
+  "loopCode": "  digitalWrite({{trigPin}}, LOW);\n  delayMicroseconds(2);\n  digitalWrite({{trigPin}}, HIGH);\n  delayMicroseconds(10);\n  digitalWrite({{trigPin}}, LOW);\n  long duration = pulseIn({{echoPin}}, HIGH);\n  float distance = duration * 0.034 / 2;\n  Serial.print(\"Distance: \");\n  Serial.print(distance);\n  Serial.println(\" cm\");\n  delay(500);"
+}

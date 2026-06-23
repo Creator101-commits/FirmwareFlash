@@ -1,9 +1,22 @@
 {
   "id": "oled-display",
   "name": "OLED Display",
-  "description": "Print \"Hello World\" on an SSD1306 128x64 OLED over I2C.",
+  "description": "Print a message on an SSD1306 128×64 OLED over I2C.",
+  "category": "Display",
   "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
   "requiredLibraries": ["Adafruit_GFX", "Adafruit_SSD1306"],
-  "setupCode": "  Wire.begin();\n  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(SSD1306_WHITE);\n  display.setCursor(0, 0);\n  display.println(\"Hello World\");\n  display.display();",
-  "loopCode": "  // OLED content is static; nothing to update in loop."
+  "params": [
+    { "key": "message", "label": "Message", "type": "text", "default": "Hello World" },
+    { "key": "i2cAddr", "label": "I2C Address", "type": "select", "default": "0x3C", "options": ["0x3C", "0x3D"] }
+  ],
+  "flashBytes": 11800,
+  "ramBytes": 1050,
+  "wiringDiagram": [
+    { "component": "SSD1306 OLED", "boardPin": "SDA", "componentPin": "SDA" },
+    { "component": "SSD1306 OLED", "boardPin": "SCL", "componentPin": "SCL" },
+    { "component": "SSD1306 OLED", "boardPin": "3.3V", "componentPin": "VCC" },
+    { "component": "SSD1306 OLED", "boardPin": "GND", "componentPin": "GND" }
+  ],
+  "setupCode": "  Wire.begin();\n  display.begin(SSD1306_SWITCHCAPVCC, {{i2cAddr}});\n  display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(SSD1306_WHITE);\n  display.setCursor(0, 0);\n  display.println(\"{{message}}\");\n  display.display();",
+  "loopCode": "  // oled content is static — update display.println() in setup if needed."
 }

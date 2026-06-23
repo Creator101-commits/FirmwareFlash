@@ -1,3 +1,5 @@
+mod stk500;
+
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
 use rusb::UsbContext;
@@ -65,7 +67,7 @@ fn list_usb_devices() -> Result<Vec<UsbDeviceInfo>, String> {
     Ok(results)
 }
 
-// try common homebrew install locations before falling back to PATH.
+// checks homebrew paths before falling back to PATH.
 fn find_arduino_cli() -> PathBuf {
     for candidate in &[
         "/opt/homebrew/bin/arduino-cli",
@@ -117,8 +119,7 @@ fn compile_sketch(
             output_dir.to_str().unwrap_or("/tmp/firmware_flash_build/output"),
             sketch_dir.to_str().unwrap_or("/tmp/firmware_flash_build/sketch"),
         ])
-        // tauri apps don't inherit the shell's PATH, so include homebrew paths
-        // so arduino-cli can find avr-gcc, esptool, etc.
+        // tauri doesn't inherit shell PATH; include homebrew paths for avr-gcc, esptool, etc.
         .env(
             "PATH",
             "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
@@ -131,8 +132,7 @@ fn compile_sketch(
     let stdout = child.stdout.take().expect("stdout was not captured");
     let stderr = child.stderr.take().expect("stderr was not captured");
 
-    // two threads drain the pipes concurrently so the pipe buffer never fills
-    // up and stalls the child process.
+    // drain pipes concurrently to prevent buffer stalls.
     let app_out = app.clone();
     let stdout_thread = std::thread::spawn(move || {
         for line in std::io::BufReader::new(stdout).lines().map_while(Result::ok) {
@@ -165,11 +165,37 @@ fn compile_sketch(
         .unwrap_or_else(|| output_dir.to_string_lossy().into_owned()))
 }
 
+#[tauri::command]
+fn list_serial_ports() -> Result<Vec<String>, String> {
+    Ok(
+        serialport::available_ports()
+            .map_err(|e| format!("cannot list serial ports: {e}"))?
+            .into_iter()
+            .map(|p| p.port_name)
+            .collect(),
+    )
+}
+
+#[tauri::command]
+fn flash_firmware(
+    app: AppHandle,
+    port_name: String,
+    hex_path: String,
+) -> Result<stk500::FlashResult, String> {
+    stk500::flash(app, port_name, hex_path)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![list_usb_devices, compile_sketch])
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![
+            list_usb_devices,
+            compile_sketch,
+            list_serial_ports,
+            flash_firmware,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

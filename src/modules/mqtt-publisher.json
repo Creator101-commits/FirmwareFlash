@@ -1,9 +1,19 @@
 {
   "id": "mqtt-publisher",
   "name": "MQTT Publisher",
-  "description": "Connect to a WiFi network and publish a message to an MQTT broker. ESP32 only.",
+  "description": "Connect to WiFi and publish messages to an MQTT broker.",
+  "category": "Connectivity",
   "compatibleBoards": ["ESP32", "CH340 (common ESP32 clone)"],
   "requiredLibraries": ["WiFi", "PubSubClient"],
-  "setupCode": "  Serial.begin(115200);\n  WiFi.begin(\"SSID\", \"PASSWORD\");\n  while (WiFi.status() != WL_CONNECTED) { delay(500); }\n  mqttClient.setServer(\"broker.hivemq.com\", 1883);\n  if (mqttClient.connect(\"FirmwareFlashClient\")) {\n    mqttClient.publish(\"firmware/flash\", \"hello from device\");\n  }",
-  "loopCode": "  if (!mqttClient.connected()) {\n    if (mqttClient.connect(\"FirmwareFlashClient\")) {\n      mqttClient.publish(\"firmware/flash\", \"ping\");\n    }\n  }\n  mqttClient.loop();\n  delay(5000);"
+  "params": [
+    { "key": "ssid",     "label": "WiFi SSID",     "type": "text", "default": "MyNetwork" },
+    { "key": "password", "label": "WiFi Password", "type": "text", "default": "mypassword" },
+    { "key": "broker",   "label": "MQTT Broker",   "type": "text", "default": "broker.hivemq.com" },
+    { "key": "topic",    "label": "MQTT Topic",    "type": "text", "default": "firmware/flash" }
+  ],
+  "flashBytes": 30000,
+  "ramBytes": 5200,
+  "wiringDiagram": [],
+  "setupCode": "  Serial.begin(115200);\n  WiFi.begin(\"{{ssid}}\", \"{{password}}\");\n  while (WiFi.status() != WL_CONNECTED) { delay(500); }\n  mqttClient.setServer(\"{{broker}}\", 1883);\n  if (mqttClient.connect(\"FirmwareFlashClient\")) {\n    mqttClient.publish(\"{{topic}}\", \"hello from device\");\n  }",
+  "loopCode": "  if (!mqttClient.connected()) {\n    if (mqttClient.connect(\"FirmwareFlashClient\")) {\n      mqttClient.publish(\"{{topic}}\", \"ping\");\n    }\n  }\n  mqttClient.loop();\n  delay(5000);"
 }

@@ -1,0 +1,24 @@
+{
+  "id": "rgb-led-fade",
+  "name": "RGB LED Fade",
+  "description": "Fade an RGB LED through a color cycle using PWM outputs.",
+  "category": "Actuators",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": [],
+  "params": [
+    { "key": "redPin",   "label": "Red Pin (PWM)",   "type": "number", "default": "9" },
+    { "key": "greenPin", "label": "Green Pin (PWM)", "type": "number", "default": "10" },
+    { "key": "bluePin",  "label": "Blue Pin (PWM)",  "type": "number", "default": "11" }
+  ],
+  "flashBytes": 600,
+  "ramBytes": 5,
+  "wiringDiagram": [
+    { "component": "RGB LED",           "boardPin": "D9",          "componentPin": "Red Anode" },
+    { "component": "RGB LED",           "boardPin": "D10",         "componentPin": "Green Anode" },
+    { "component": "RGB LED",           "boardPin": "D11",         "componentPin": "Blue Anode" },
+    { "component": "RGB LED",           "boardPin": "GND",         "componentPin": "Common Cathode" },
+    { "component": "220Ω Resistors ×3", "boardPin": "D9/D10/D11", "componentPin": "In series with each channel" }
+  ],
+  "setupCode": "  pinMode({{redPin}}, OUTPUT);\n  pinMode({{greenPin}}, OUTPUT);\n  pinMode({{bluePin}}, OUTPUT);",
+  "loopCode": "  for (int r = 0; r < 256; r++) {\n    analogWrite({{redPin}},   r);\n    analogWrite({{greenPin}}, 255 - r);\n    analogWrite({{bluePin}},  (r * 2) % 256);\n    delay(10);\n  }"
+}

@@ -9,9 +9,11 @@ import type { ComposedModule } from "../types/module";
 interface Props {
   items: ComposedModule[];
   onRemove: (instanceId: string) => void;
+  onParamChange: (instanceId: string, key: string, value: string) => void;
+  conflictedIds?: Set<string>;
 }
 
-export function Composer({ items, onRemove }: Props) {
+export function Composer({ items, onRemove, onParamChange, conflictedIds }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: "composer-drop-zone" });
 
   return (
@@ -34,7 +36,13 @@ export function Composer({ items, onRemove }: Props) {
         strategy={verticalListSortingStrategy}
       >
         {items.map((item) => (
-          <ComposedModuleItem key={item.instanceId} item={item} onRemove={onRemove} />
+          <ComposedModuleItem
+            key={item.instanceId}
+            item={item}
+            onRemove={onRemove}
+            onParamChange={onParamChange}
+            isConflicted={conflictedIds?.has(item.instanceId) ?? false}
+          />
         ))}
       </SortableContext>
     </div>

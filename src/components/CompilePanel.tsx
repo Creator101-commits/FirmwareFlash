@@ -5,15 +5,17 @@ import type { UnlistenFn } from "@tauri-apps/api/event";
 import { generateIno } from "../codegen";
 import { boardFqbn } from "../types/fqbn";
 import type { ComposedModule } from "../types/module";
+import { troubleshootAll } from "../errors/troubleshooter";
 
 type CompileStatus = "idle" | "compiling" | "success" | "error";
 
 interface Props {
   composed: ComposedModule[];
   boardName: string;
+  onSuccess?: (hexPath: string) => void;
 }
 
-export function CompilePanel({ composed, boardName }: Props) {
+export function CompilePanel({ composed, boardName, onSuccess }: Props) {
   const [status, setStatus] = useState<CompileStatus>("idle");
   const [logs, setLogs] = useState<string[]>([]);
   const [hexPath, setHexPath] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export function CompilePanel({ composed, boardName }: Props) {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  // clean up the event listener if this component unmounts mid-compile.
+  // clean up listener if this component unmounts mid-compile.
   useEffect(() => {
     return () => { unlistenRef.current?.(); };
   }, []);
@@ -58,6 +60,7 @@ export function CompilePanel({ composed, boardName }: Props) {
       });
       setHexPath(path);
       setStatus("success");
+      onSuccess?.(path);
     } catch (err) {
       const msg =
         typeof err === "string"
@@ -68,7 +71,7 @@ export function CompilePanel({ composed, boardName }: Props) {
       setErrorMsg(msg);
       setStatus("error");
     } finally {
-      // small delay so any trailing log events arrive before we unlisten.
+      // small delay so trailing log events arrive before we unlisten.
       await new Promise<void>((r) => setTimeout(r, 150));
       unlisten();
       if (unlistenRef.current === unlisten) unlistenRef.current = null;
@@ -76,6 +79,7 @@ export function CompilePanel({ composed, boardName }: Props) {
   }
 
   const showLog = status !== "idle";
+  const tip = status === "error" ? troubleshootAll(logs) : null;
 
   return (
     <section className="mt-4 border-t border-gray-100 pt-4">
@@ -94,13 +98,20 @@ export function CompilePanel({ composed, boardName }: Props) {
         )}
 
         {status === "success" && (
-          <span className="text-sm font-medium text-green-600">✓ Compiled successfully</span>
+          <span className="text-sm font-medium text-green-600">Compiled successfully</span>
         )}
 
         {status === "error" && (
-          <span className="text-sm font-medium text-red-500">✕ Compilation failed</span>
+          <span className="text-sm font-medium text-red-500">Compilation failed</span>
         )}
       </div>
+
+      {/* plain-English tip above the log when compilation fails */}
+      {status === "error" && tip && (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-sm text-amber-900">{tip}</p>
+        </div>
+      )}
 
       {showLog && (
         <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-gray-200 bg-gray-950 p-3 font-mono text-xs leading-relaxed">
@@ -117,7 +128,12 @@ export function CompilePanel({ composed, boardName }: Props) {
           )}
 
           {status === "error" && errorMsg && (
-            <p className="mt-2 text-red-400">{errorMsg}</p>
+            <details className="mt-2">
+              <summary className="cursor-pointer text-xs text-gray-500 hover:text-gray-300">
+                Technical details
+              </summary>
+              <p className="mt-1 text-red-400">{errorMsg}</p>
+            </details>
           )}
 
           <div ref={logsEndRef} />

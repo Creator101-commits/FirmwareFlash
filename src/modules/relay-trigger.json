@@ -1,0 +1,22 @@
+{
+  "id": "relay-trigger",
+  "name": "Relay Trigger",
+  "description": "Toggle a relay on and off on a configurable schedule.",
+  "category": "Actuators",
+  "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
+  "requiredLibraries": [],
+  "params": [
+    { "key": "pin",     "label": "Relay Pin",        "type": "number", "default": "7" },
+    { "key": "onTime",  "label": "ON duration (ms)",  "type": "number", "default": "1000" },
+    { "key": "offTime", "label": "OFF duration (ms)", "type": "number", "default": "1000" }
+  ],
+  "flashBytes": 500,
+  "ramBytes": 5,
+  "wiringDiagram": [
+    { "component": "Relay Module", "boardPin": "D7",  "componentPin": "IN" },
+    { "component": "Relay Module", "boardPin": "5V",  "componentPin": "VCC" },
+    { "component": "Relay Module", "boardPin": "GND", "componentPin": "GND" }
+  ],
+  "setupCode": "  pinMode({{pin}}, OUTPUT);\n  digitalWrite({{pin}}, LOW);",
+  "loopCode": "  digitalWrite({{pin}}, HIGH);\n  delay({{onTime}});\n  digitalWrite({{pin}}, LOW);\n  delay({{offTime}});"
+}

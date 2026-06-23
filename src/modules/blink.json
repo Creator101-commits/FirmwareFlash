@@ -1,9 +1,21 @@
 {
   "id": "blink",
   "name": "Blink LED",
-  "description": "Blink the built-in LED on pin 13 at 1 Hz.",
+  "description": "Blink an LED at a configurable interval.",
+  "category": "Actuators",
   "compatibleBoards": ["Arduino Uno", "ESP32", "CH340 (common ESP32 clone)"],
   "requiredLibraries": [],
-  "setupCode": "  pinMode(13, OUTPUT);",
-  "loopCode": "  digitalWrite(13, HIGH);\n  delay(500);\n  digitalWrite(13, LOW);\n  delay(500);"
+  "params": [
+    { "key": "pin", "label": "LED Pin", "type": "number", "default": "13" },
+    { "key": "interval", "label": "Interval (ms)", "type": "number", "default": "500" }
+  ],
+  "flashBytes": 924,
+  "ramBytes": 9,
+  "wiringDiagram": [
+    { "component": "LED", "boardPin": "D13", "componentPin": "Anode (+)" },
+    { "component": "LED", "boardPin": "GND", "componentPin": "Cathode (−)" },
+    { "component": "220Ω Resistor", "boardPin": "D13", "componentPin": "In series with LED" }
+  ],
+  "setupCode": "  pinMode({{pin}}, OUTPUT);",
+  "loopCode": "  digitalWrite({{pin}}, HIGH);\n  delay({{interval}});\n  digitalWrite({{pin}}, LOW);\n  delay({{interval}});"
 }
